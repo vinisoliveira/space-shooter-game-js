@@ -61,13 +61,22 @@ function createLaserElement() {
 function moveLaser(laser){
     let laserInterval = setInterval(() => {
         let xPosition = parseInt(laser.style.left);
+        let aliens = document.querySelectorAll('.alien');
+
+        aliens.forEach((alien) =>{
+            if(checkLaserCollision(laser, alien)){
+                alien.src = 'img/explosion.png';
+                alien.classList.remove('alien');
+                alien.classList.add('dead-alien');
+            }
+        })
 
         if(xPosition === 340){
-            laser.remove()
+            laser.remove();
         }else{
             laser.style.left = `${xPosition + 8}px`
         }
-    }, 10)
+    }, 10);
 }
 
 function createAliens(){
@@ -79,7 +88,45 @@ function createAliens(){
     newAlien.style.left = '370px';
     newAlien.style.top = `${Math.floor(Math.random() * 330) + 30}px`;
     playArea.appendChild(newAlien);
-    moveAlie(newAlien);
+    moveAlien(newAlien);
+}
+
+// FUNÇÃO PARA MOVIMENTAR OS INIMIGOS
+function moveAlien(alien){
+    let moveAlienInterval = setInterval(() => {
+        let xPosition = parseInt(window.getComputedStyle(alien).getPropertyValue('left'))
+        if(xPosition <= 50){
+            if(Array.from(alien.classList).includes('dead-alien')) {
+                alien.remove();
+            } else {
+                gameOver();
+            } 
+        }else {
+            alien.style.left = `${xPosition - 4}px`
+        }
+    }, 30)
+}
+
+// FUNÇÃO PARA COLISÃO
+function checkLaserCollision(laser, alien){
+    let laserTop = parseInt(laser.style.top);
+    let laserLeft = parseInt(laser.style.left);
+    let laserBottom = laserTop - 20;
+
+    let alienTop = parseInt(alien.style.top);
+    let alienLeft = parseInt(alien.style.left);
+    let alienBottom = alienTop - 30;
+
+    if(laserLeft != 340 && laserLeft + 40 >= alienLeft){
+        if(laserTop <= alienTop && laserTop >= alienBottom){
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 }
 
 window.addEventListener('keydown', FlyAhip);
+createAliens()
